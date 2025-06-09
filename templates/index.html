@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Text Humanizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Text Humanizer</h1>
+        <p class="subtitle">Make AI-generated text sound more human-like</p>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="ai_text">AI-Generated Text:</label>
+                <textarea id="ai_text" name="ai_text" rows="8" required>{{ ai_text if ai_text else '' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="intensity">Humanization Intensity (1-5):</label>
+                <input type="range" id="intensity" name="intensity" min="1" max="5" value="{{ intensity if intensity else 3 }}">
+                <span id="intensity-value">{{ intensity if intensity else 3 }}</span>
+            </div>
+            
+            <button type="submit">Humanize Text</button>
+        </form>
+        
+        {% if humanized_text %}
+        <div class="result">
+            <h2>Humanized Version:</h2>
+            <div class="text-output">{{ humanized_text }}</div>
+            
+            <div class="actions">
+                <button onclick="copyToClipboard()">Copy to Clipboard</button>
+                <button onclick="downloadAsText()">Download as TXT</button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Update intensity value display
+        const intensitySlider = document.getElementById('intensity');
+        const intensityValue = document.getElementById('intensity-value');
+        
+        intensitySlider.addEventListener('input', function() {
+            intensityValue.textContent = this.value;
+        });
+        
+        function copyToClipboard() {
+            const text = document.querySelector('.text-output').innerText;
+            navigator.clipboard.writeText(text)
+                .then(() => alert('Text copied to clipboard!'))
+                .catch(err => console.error('Failed to copy: ', err));
+        }
+        
+        function downloadAsText() {
+            const text = document.querySelector('.text-output').innerText;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'humanized-text.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
